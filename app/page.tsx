@@ -68,7 +68,7 @@ export default function ListsPage() {
           />
           <ListItem
             image="/placeholder.svg"
-            title="PIN Groep"
+            title="PIN Group"
             balance="€0.00"
             description="No recent activity"
             date=""
