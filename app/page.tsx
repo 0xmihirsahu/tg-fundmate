@@ -76,7 +76,7 @@ export default function ListsPage() {
         </div>
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation*/}
       <nav className="flex justify-around items-center p-4 border-t bg-white">
         <NavItem icon={<ListStart className="w-5 h-5" />} label="Lists" active />
         <NavItem icon={<ArrowLeftRight className="w-5 h-5" />} label="Payments" />
