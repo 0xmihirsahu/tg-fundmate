@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Settings, Plus } from 'lucide-react'
+import { ArrowLeft, Settings, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -96,4 +96,3 @@ export default function ListDetail() {
     </div>
   )
 }
-

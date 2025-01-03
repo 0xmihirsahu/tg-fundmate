@@ -29,11 +29,18 @@ export default function ListItem({
         <div className="flex-1 min-w-0">
           <h2 className="text-lg font-semibold text-[#1e2b4a]">{title}</h2>
           <p className="text-base font-semibold text-[#1e2b4a]">
-            My balance: <span className={isNegative ? "text-red-500" : "text-[#2481cc]"}>{balance}</span>
+            My balance:{" "}
+            <span className={isNegative ? "text-red-500" : "text-[#2481cc]"}>
+              {balance}
+            </span>
           </p>
           <p className="text-gray-500 text-sm truncate">{description}</p>
         </div>
-        {date && <span className="text-gray-500 text-sm whitespace-nowrap">{date}</span>}
+        {date && (
+          <span className="text-gray-500 text-sm whitespace-nowrap">
+            {date}
+          </span>
+        )}
       </Card>
     </Link>
   )
