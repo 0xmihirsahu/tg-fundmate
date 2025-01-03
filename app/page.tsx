@@ -13,8 +13,31 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import ListItem from "@/components/ListItem"
 import NavItem from "@/components/NavItem"
 
-function Modal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+interface GroupType {
+  // Define GroupType
+  id: number
+  name: string
+}
+
+function Modal({
+  isOpen,
+  onClose,
+  onCreate,
+}: {
+  isOpen: boolean
+  onClose: () => void
+  onCreate: (groupName: string) => void
+}) {
+  const [groupName, setGroupName] = useState<string>("") // State for group name
+
   if (!isOpen) return null
+
+  const handleCreate = () => {
+    if (groupName.trim()) {
+      onCreate(groupName) // Call the onCreate function with the group name
+      setGroupName("") // Clear the input field
+    }
+  }
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -24,9 +47,11 @@ function Modal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
           type="text"
           placeholder="Group Name"
           className="border p-2 w-full"
+          value={groupName}
+          onChange={(e) => setGroupName(e.target.value)} // Update state on input change
         />
         <button
-          onClick={onClose}
+          onClick={handleCreate}
           className="mt-2 bg-blue-500 text-white p-2 rounded"
         >
           Create
@@ -41,6 +66,13 @@ function Modal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
 
 export default function ListsPage() {
   const [isCreateGroup, setIsCreateGroup] = useState<boolean>(false)
+  const [groups, setGroups] = useState<GroupType[]>([]) // Define GroupType according to your data structure
+
+  const handleCreateGroup = (groupName: string) => {
+    const newGroup = { id: Date.now(), name: groupName } // Create a new group object
+    setGroups([...groups, newGroup]) // Update the state with the new group
+    setIsCreateGroup(false) // Close the modal
+  }
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto bg-white">
@@ -56,7 +88,11 @@ export default function ListsPage() {
         </Button>
       </header>
 
-      <Modal isOpen={isCreateGroup} onClose={() => setIsCreateGroup(false)} />
+      <Modal
+        isOpen={isCreateGroup}
+        onClose={() => setIsCreateGroup(false)}
+        onCreate={handleCreateGroup}
+      />
 
       <main className="flex-1 p-4 space-y-4">
         {/* Alert */}
@@ -74,49 +110,20 @@ export default function ListsPage() {
 
         {/* List Items */}
         <div className="space-y-4">
-          <ListItem
-            image="/placeholder.svg"
-            title="JC Ping Pong 🏓"
-            balance="-€11.97"
-            description="Emiel paid €19.30 for Lasagna"
-            date="Dec 9"
-            isNegative
-          />
-          <ListItem
-            image="/placeholder.svg"
-            title="MAUL"
-            balance="€24.10"
-            description="You paid €6.40 for Drinken"
-            date="Aug 15"
-          />
-          <ListItem
-            image="/placeholder.svg"
-            title="Groningen met george"
-            balance="€0.00"
-            description="sem settled the list"
-            date="Jun 15"
-          />
-          <ListItem
-            image="/placeholder.svg"
-            title="Athens girlies ✌️😙"
-            balance="€0.00"
-            description="sem paid €28.99 for Verrekenen"
-            date="Mar 6"
-          />
-          <ListItem
-            image="/placeholder.svg"
-            title="Violet"
-            balance="€13.39"
-            description="Laurens paid €2.30 for Toiletpaper"
-            date="Feb 7"
-          />
-          <ListItem
-            image="/placeholder.svg"
-            title="PIN Group"
-            balance="€0.00"
-            description="No recent activity"
-            date=""
-          />
+          {groups.map(
+            (
+              group // Render ListItems based on groups
+            ) => (
+              <ListItem
+                key={group.id}
+                image="/placeholder.svg"
+                title={group.name} // Use group name as title
+                balance="€0.00" // Placeholder balance
+                description="No recent activity" // Placeholder description
+                date="" // Placeholder date
+              />
+            )
+          )}
         </div>
       </main>
 
