@@ -41,7 +41,7 @@ export const initWallet = (contractAddress: string) =>
         try {
           const fees = await account?.estimateInvokeFee([call]);
           const tx = await contract[action]({
-            maxFee: fees?.suggestedMaxFee ? BigInt(fees.suggestedMaxFee) * 2n : undefined,
+            maxFee: fees?.suggestedMaxFee ? BigInt(fees.suggestedMaxFee) * BigInt(2) : undefined,
           });
           await argentTMA.provider.waitForTransaction(tx.transaction_hash);
           console.log(successMessage)
