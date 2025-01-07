@@ -9,7 +9,6 @@ export const initWallet = (contractAddress: string) =>
       sessionParams: {
         allowedMethods: [
           { contract: contractAddress, selector: 'create_split_payment_request' },
-          { contract: contractAddress, selector: 'check_contribution' },
           { contract: contractAddress, selector: 'pay_contribution' },
           { contract: contractAddress, selector: 'finalize_payment' },
           { contract: contractAddress, selector: 'refund' },
