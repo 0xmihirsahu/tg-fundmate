@@ -62,7 +62,8 @@ export default function ExpenseTracker() {
     }
 
     initializeWallet()
-  }, []) // eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line
+  }, [])
 
   const handleConnect = async () => {
     try {
