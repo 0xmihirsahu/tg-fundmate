@@ -18,7 +18,12 @@ export default async function handler(
       return res.status(400).json({ error: "chatId and message are required" })
     }
 
-    const token = "<token>" // Replace with your bot token
+    const token = process.env.BOT_TOKEN // Get token from environment variables
+    if (!token) {
+      return res
+        .status(500)
+        .json({ error: "Telegram bot token not configured" })
+    }
     const url = `https://api.telegram.org/bot${token}/sendMessage`
 
     try {
