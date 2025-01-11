@@ -6,15 +6,28 @@ import { useState } from 'react';
 
 interface ExpenseFormProps {
   onClose: () => void
+  handleAction: (action: string, params?: number[]) => Promise<boolean | undefined>
+  isLoading: boolean
 }
 
-export function ExpenseForm({ onClose }: ExpenseFormProps) {
+export function ExpenseForm({ onClose, handleAction, isLoading }: ExpenseFormProps) {
   const [amount, setAmount] = useState<string>('0')
   const users = [
     { id: 'you', name: 'You' },
     { id: 'filip', name: 'Filip Laurentiu' },
     { id: 'paul', name: 'Paul' }
   ]
+
+  const handleSubmit = async () => {
+    // Convert amount to appropriate format and create params array
+    const amountValue = parseFloat(amount);
+    if (isNaN(amountValue)) return;
+    
+    const result = await handleAction('create_split_payment_request', [amountValue]);
+    if (result) {
+      onClose();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -67,13 +80,10 @@ export function ExpenseForm({ onClose }: ExpenseFormProps) {
       <div className="fixed bottom-4 left-4 right-4 max-w-lg mx-auto">
         <Button 
           className="w-full bg-blue-500 hover:bg-blue-600 text-white py-6 text-lg"
-          onClick={() => {
-            // Here you would typically handle the expense submission
-            console.log('Expense added:', amount)
-            onClose()
-          }}
+          onClick={handleSubmit}
+          disabled={isLoading}
         >
-          ADD EXPENSE
+          {isLoading ? 'Processing...' : 'ADD EXPENSE'}
         </Button>
       </div>
     </div>

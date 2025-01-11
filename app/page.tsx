@@ -153,6 +153,8 @@ export default function ExpenseTracker() {
             {showExpenseForm ? (
               <ExpenseForm 
                 onClose={() => setShowExpenseForm(false)}
+                handleAction={handleAction}
+                isLoading={isLoading}
               />
             ) : (
               <>
