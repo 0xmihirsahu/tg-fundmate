@@ -28,13 +28,14 @@ export const initWallet = (contractAddress: string) =>
         account: SessionAccountInterface,
         argentTMA: ArgentTMA,
         action: string,
+        actionArgs: number[] | string[] | bigint[],
         successMessage: string,
         errorMessage: string
       ) {
         const call: Call = {
           contractAddress: contract.address,
           entrypoint: action,
-          calldata: [],
+          calldata: actionArgs,
         };
       
         try {

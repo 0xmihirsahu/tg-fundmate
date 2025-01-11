@@ -91,7 +91,7 @@ export default function ExpenseTracker() {
     }
   }
 
-  async function handleAction(action: string, params: any[] = []) {
+  async function handleAction(action: string, params: number[] | string[] | bigint[] = []) {
     if (!contract || !isConnected || !account) return;
     setIsLoading(true);
 
@@ -119,6 +119,7 @@ export default function ExpenseTracker() {
       account,
       argentTMA,
       action,
+      params,
       messages[action as keyof typeof messages].success,
       messages[action as keyof typeof messages].error
     );
