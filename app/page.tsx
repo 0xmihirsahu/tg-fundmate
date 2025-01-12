@@ -6,8 +6,8 @@ import { ExpenseForm } from '@/components/expense-form'
 import { Button } from "@/components/ui/button"
 import artifact from '../utils/abi/fundmate.contract_class.json'
 import { Contract, AccountInterface } from 'starknet'
-import { ArgentTMA, SessionAccountInterface } from '@argent/tma-wallet'
-import { executeContractAction } from '@/lib/contracts'
+import { SessionAccountInterface } from '@argent/tma-wallet'
+import { executeContractAction, initWallet } from '@/lib/contracts'
 
 export default function ExpenseTracker() {
   const [showExpenseForm, setShowExpenseForm] = useState(false)
@@ -15,19 +15,9 @@ export default function ExpenseTracker() {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [contract, setContract] = useState<Contract>()
-  const [argentTMA, setArgentTMA] = useState<ArgentTMA | undefined>(undefined)
 
   const FUNDMATE_ADDRESS = process.env.NEXT_PUBLIC_STARK_SWIRL_CONTRACT_ADDRESS || ''
-
-  useEffect(() => {
-    const loadWallet = async () => {
-      const { initWallet } = await import('@/lib/contracts')
-      const wallet = initWallet(FUNDMATE_ADDRESS)
-      setArgentTMA(wallet)
-    }
-
-    loadWallet()
-  }, [FUNDMATE_ADDRESS])
+  const argentTMA = initWallet(FUNDMATE_ADDRESS)
 
   // Sample transactions (move to state if they become dynamic)
   const transactions = [
@@ -44,8 +34,6 @@ export default function ExpenseTracker() {
 
   useEffect(() => {
     const initializeWallet = async () => {
-      if (!argentTMA) return
-
       try {
         const res = await argentTMA.connect()
         if (!res) {
@@ -75,13 +63,13 @@ export default function ExpenseTracker() {
 
     initializeWallet()
 // eslint-disable-next-line
-  }, [argentTMA])
+  }, [])
 
   const handleConnect = async () => {
-    if (!argentTMA) return;
     try {
       setIsLoading(true)
       await argentTMA.requestConnection({ callbackData: 'fundmate_connection' })
+      // The useEffect will handle the connection state update
     } catch (error) {
       console.error('Connection failed:', error)
     } finally {
@@ -90,7 +78,6 @@ export default function ExpenseTracker() {
   }
 
   const handleDisconnect = async () => {
-    if (!argentTMA) return;
     try {
       setIsLoading(true)
       await argentTMA.clearSession()
@@ -105,7 +92,7 @@ export default function ExpenseTracker() {
   }
 
   async function handleAction(action: string, params: number[] | string[] | bigint[] = []) {
-    if (!contract || !isConnected || !account || !argentTMA) return;
+    if (!contract || !isConnected || !account) return;
     setIsLoading(true);
 
     const messages = {
