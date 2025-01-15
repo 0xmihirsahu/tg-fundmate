@@ -77,8 +77,10 @@ export default function ExpenseTracker() {
   ]
 
   const handleConnect = async () => {
+    console.log('Connecting...')
     if (!argentTMA) return;
     try {
+      console.log('Requesting connection...')
       setIsLoading(true)
       await argentTMA.requestConnection({ callbackData: 'fundmate_connection' })
     } catch (error) {
@@ -161,8 +163,9 @@ export default function ExpenseTracker() {
           </Button>
         )}
 
-        {isConnected && (
+        {!isConnected && (
           <>
+          {isConnected && (
             <Button
               className="w-full bg-red-500 hover:bg-red-600 text-white py-6 text-lg mb-4"
               onClick={handleDisconnect}
@@ -170,6 +173,7 @@ export default function ExpenseTracker() {
             >
               Disconnect Wallet
             </Button>
+          )}
 
             {showExpenseForm ? (
               <ExpenseForm 
