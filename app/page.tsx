@@ -6,8 +6,7 @@ import { ExpenseForm } from '@/components/expense-form'
 import { Button } from "@/components/ui/button"
 import artifact from '../utils/abi/fundmate.contract_class.json'
 import { Contract, AccountInterface } from 'starknet'
-import { SessionAccountInterface } from '@argent/tma-wallet'
-import { executeContractAction, initWallet } from '@/lib/contracts'
+import { SessionAccountInterface, ArgentTMA } from '@argent/tma-wallet'
 
 export default function ExpenseTracker() {
   const [showExpenseForm, setShowExpenseForm] = useState(false)
@@ -15,24 +14,24 @@ export default function ExpenseTracker() {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [contract, setContract] = useState<Contract>()
+  const [argentTMA, setArgentTMA] = useState<ArgentTMA>()
 
   const FUNDMATE_ADDRESS = process.env.NEXT_PUBLIC_STARK_SWIRL_CONTRACT_ADDRESS || ''
-  const argentTMA = initWallet(FUNDMATE_ADDRESS)
-
-  // Sample transactions (move to state if they become dynamic)
-  const transactions = [
-    {
-      id: 1,
-      from: 'You',
-      to: 'Filip',
-      description: 'Filip Laurentiu',
-      amount: 16.67,
-      type: 'debt'
-    },
-    // ... other transactions
-  ]
 
   useEffect(() => {
+    const initializeArgentTMA = async () => {
+      if (typeof window === 'undefined') return;
+      
+      const { initWallet } = await import('@/lib/contracts');
+      setArgentTMA(initWallet(FUNDMATE_ADDRESS));
+    };
+
+    initializeArgentTMA();
+  }, [FUNDMATE_ADDRESS]);
+
+  useEffect(() => {
+    if (!argentTMA) return;
+
     const initializeWallet = async () => {
       try {
         const res = await argentTMA.connect()
@@ -62,14 +61,26 @@ export default function ExpenseTracker() {
     }
 
     initializeWallet()
-// eslint-disable-next-line
-  }, [])
+  }, [argentTMA, FUNDMATE_ADDRESS])
+
+  // Sample transactions (move to state if they become dynamic)
+  const transactions = [
+    {
+      id: 1,
+      from: 'You',
+      to: 'Filip',
+      description: 'Filip Laurentiu',
+      amount: 16.67,
+      type: 'debt'
+    },
+    // ... other transactions
+  ]
 
   const handleConnect = async () => {
+    if (!argentTMA) return;
     try {
       setIsLoading(true)
       await argentTMA.requestConnection({ callbackData: 'fundmate_connection' })
-      // The useEffect will handle the connection state update
     } catch (error) {
       console.error('Connection failed:', error)
     } finally {
@@ -78,6 +89,7 @@ export default function ExpenseTracker() {
   }
 
   const handleDisconnect = async () => {
+    if (!argentTMA) return;
     try {
       setIsLoading(true)
       await argentTMA.clearSession()
@@ -95,37 +107,45 @@ export default function ExpenseTracker() {
     if (!contract || !isConnected || !account) return;
     setIsLoading(true);
 
-    const messages = {
-      create_split_payment_request: { 
-        success: 'Split payment request created! 💰', 
-        error: 'Failed to create split payment 😕' 
-      },
-      pay_contribution: { 
-        success: 'Payment contribution successful! 🎉', 
-        error: 'Failed to contribute payment 😕' 
-      },
-      finalize_payment: { 
-        success: 'Payment finalized! ✅', 
-        error: 'Failed to finalize payment 😕' 
-      },
-      refund: { 
-        success: 'Refund processed! 💸', 
-        error: 'Failed to process refund 😕' 
-      }
-    };
+    try {
+      const { executeContractAction } = await import('@/lib/contracts');
+      
+      const messages = {
+        create_split_payment_request: { 
+          success: 'Split payment request created! 💰', 
+          error: 'Failed to create split payment 😕' 
+        },
+        pay_contribution: { 
+          success: 'Payment contribution successful! 🎉', 
+          error: 'Failed to contribute payment 😕' 
+        },
+        finalize_payment: { 
+          success: 'Payment finalized! ✅', 
+          error: 'Failed to finalize payment 😕' 
+        },
+        refund: { 
+          success: 'Refund processed! ��', 
+          error: 'Failed to process refund 😕' 
+        }
+      };
 
-    const result = await executeContractAction(
-      contract,
-      account,
-      argentTMA,
-      action,
-      params,
-      messages[action as keyof typeof messages].success,
-      messages[action as keyof typeof messages].error
-    );
+      const result = await executeContractAction(
+        contract,
+        account,
+        argentTMA as ArgentTMA,
+        action,
+        params,
+        messages[action as keyof typeof messages].success,
+        messages[action as keyof typeof messages].error
+      );
 
-    setIsLoading(false);
-    return result;
+      setIsLoading(false);
+      return result;
+    } catch (error) {
+      console.error('Action failed:', error);
+      setIsLoading(false);
+      return false;
+    }
   }
 
   return (
